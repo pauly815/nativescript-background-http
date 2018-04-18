@@ -4,6 +4,33 @@ import * as fileSystemModule from "file-system";
 import * as utils from "utils/utils";
 
 const main_queue = dispatch_get_current_queue();
+let zonedOnProgress = null;
+let zonedOnError = null;
+
+function onProgress(nsSession, nsTask, sent, expectedTotal) {
+    const task = Task.getTask(nsSession, nsTask);
+    task.notifyPropertyChange("upload", task.upload);
+    task.notifyPropertyChange("totalUpload", task.totalUpload);
+    task.notify({ eventName: "progress", object: task, currentBytes: sent, totalBytes: expectedTotal });
+}
+
+function onError(session, nsTask, error) {
+    const task = Task.getTask(session, nsTask);
+    if (task._fileToCleanup) {
+        const fileManager = utils.ios.getter(NSFileManager, NSFileManager.defaultManager);
+        fileManager.removeItemAtPathError(task._fileToCleanup);
+    }
+    if (error) {
+        task.notifyPropertyChange("status", task.status);
+        task.notify({ eventName: "error", object: task, error: error });
+    } else {
+        task.notifyPropertyChange("upload", task.upload);
+        task.notifyPropertyChange("totalUpload", task.totalUpload);
+        task.notify({ eventName: "progress", object: task, currentBytes: nsTask.countOfBytesSent, totalBytes: nsTask.countOfBytesExpectedToSend });
+        task.notify({ eventName: "complete", object: task });
+        Task._tasks.delete(nsTask);
+    }
+}
 
 class BackgroundUploadDelegate extends NSObject implements NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate {
 
@@ -30,21 +57,7 @@ class BackgroundUploadDelegate extends NSObject implements NSURLSessionDelegate,
     // NSURLSessionTaskDelegate
     URLSessionTaskDidCompleteWithError(session, nsTask, error) {
         dispatch_async(main_queue, () => {
-            const task = Task.getTask(session, nsTask);
-            if (task._fileToCleanup) {
-                const fileManager = utils.ios.getter(NSFileManager, NSFileManager.defaultManager);
-                fileManager.removeItemAtPathError(task._fileToCleanup);
-            }
-            if (error) {
-                task.notifyPropertyChange("status", task.status);
-                task.notify({ eventName: "error", object: task, error: error });
-            } else {
-                task.notifyPropertyChange("upload", task.upload);
-                task.notifyPropertyChange("totalUpload", task.totalUpload);
-                task.notify({ eventName: "progress", object: task, currentBytes: nsTask.countOfBytesSent, totalBytes: nsTask.countOfBytesExpectedToSend });
-                task.notify({ eventName: "complete", object: task });
-                Task._tasks.delete(nsTask);
-            }
+            zonedOnError(session, nsTask, error);
         });
     }
 
@@ -57,12 +70,7 @@ class BackgroundUploadDelegate extends NSObject implements NSURLSessionDelegate,
 
     URLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSend(nsSession: NSURLSession, nsTask: NSURLSessionTask, data, sent: number, expectedTotal: number) {
         dispatch_async(main_queue, () => {
-            const task = Task.getTask(nsSession, nsTask);
-            // console.log("notifyPropertyChange: upload");
-            task.notifyPropertyChange("upload", task.upload);
-            // console.log("notifyPropertyChange: totalUpload");
-            task.notifyPropertyChange("totalUpload", task.totalUpload);
-            task.notify({ eventName: "progress", object: task, currentBytes: sent, totalBytes: expectedTotal });
+            zonedOnProgress(nsSession, nsTask, sent, expectedTotal);
         });
     }
 
@@ -125,6 +133,8 @@ class Session implements common.Session {
         const delegate = BackgroundUploadDelegate.alloc().init();
         const configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(id);
         this._session = NSURLSession.sessionWithConfigurationDelegateDelegateQueue(configuration, delegate, null);
+        zonedOnProgress = global.zonedCallback(onProgress);
+        zonedOnError = global.zonedCallback(onError);
     }
 
     get ios(): any {
@@ -215,7 +225,7 @@ class Task extends Observable {
     public _fileToCleanup: string;
     private _task: NSURLSessionTask;
     private _session: NSURLSession;
-
+    public testProp = 0;
     constructor(nsSession: NSURLSession, nsTask: NSURLSessionTask) {
         super();
         this._task = nsTask;
