@@ -5,11 +5,11 @@
   "repository": "<fill-your-repository-here>",
   "nativescript": {
     "id": "org.nativescript.demoangular",
-    "tns-android": {
-      "version": "4.0.1"
-    },
     "tns-ios": {
-      "version": "4.0.1"
+      "version": "3.4.1"
+    },
+    "tns-android": {
+      "version": "3.4.2"
     }
   },
   "scripts": {
@@ -26,18 +26,37 @@
     "@angular/platform-browser": "~5.2.0",
     "@angular/platform-browser-dynamic": "~5.2.0",
     "@angular/router": "~5.2.0",
-    "nativescript-angular": "~5.3.0",
+    "nativescript-accordion": "^5.0.3",
+    "nativescript-angular": "^5.2.0",
     "nativescript-background-http": "../src",
+    "nativescript-camera": "^3.2.1",
+    "nativescript-checkbox": "^3.0.3",
+    "nativescript-contacts-lite": "^0.2.5",
+    "nativescript-drop-down": "^3.2.2",
+    "nativescript-email": "^1.5.1",
+    "nativescript-floatingactionbutton": "^4.1.3",
+    "nativescript-geolocation": "^4.2.6",
+    "nativescript-google-analytics": "0.4.1",
+    "nativescript-imagepicker": "^4.0.1",
+    "nativescript-iqkeyboardmanager": "^1.2.0",
+    "nativescript-loading-indicator": "^2.4.0",
+    "nativescript-ngx-fonticon": "^4.0.0",
+    "nativescript-permissions": "^1.2.3",
+    "nativescript-photoviewer": "^1.4.0",
+    "nativescript-pro-ui": "^3.4.1",
+    "nativescript-social-share": "^1.5.0",
     "nativescript-theme-core": "~1.0.4",
+    "nativescript-toast": "^1.4.6",
+    "nativescript-web-image-cache": "^4.2.2",
     "reflect-metadata": "~0.1.10",
     "rxjs": "~5.5.5",
-    "tns-core-modules": "4.0.0",
-    "tns-platform-declarations": "^4.0.0",
+    "tns-core-modules": "3.4.1",
+    "tns-platform-declarations": "^3.4.1",
     "zone.js": "~0.8.18"
   },
   "devDependencies": {
     "@angular/compiler-cli": "~5.2.0",
-    "@ngtools/webpack": "~1.9.4",
+    "@ngtools/webpack": "^1.8.3",
     "babel-traverse": "6.26.0",
     "babel-types": "6.26.0",
     "babylon": "6.18.0",
@@ -51,11 +70,11 @@
     "nativescript-worker-loader": "~0.8.1",
     "raw-loader": "~0.5.1",
     "resolve-url-loader": "~2.2.1",
+    "tslint": "^5.0.0",
     "typescript": "~2.7.2",
     "uglifyjs-webpack-plugin": "~1.1.6",
-    "webpack": "~3.10.0",
+    "webpack": "^3.8.1",
     "webpack-bundle-analyzer": "^2.9.1",
-    "tslint": "^5.0.0",
     "webpack-sources": "~1.1.0"
   }
 }

@@ -24,7 +24,7 @@ export class HomeComponent {
             this.url = "http://localhost:8080";
         } else {
             // NOTE: This works for emulator. Real device will need other address.
-            this.url = "http://10.0.2.2:8080";
+            this.url = "http://192.168.0.116:8080";
         }
 
         this.session = bgHttp.session("image-upload");
@@ -78,7 +78,9 @@ export class HomeComponent {
             if (lastEvent !== e.eventName) {
                 // suppress all repeating progress events and only show the first one
                 lastEvent = e.eventName;
+                console.log(e)
             } else {
+                console.log(e)
                 return;
             }
 
